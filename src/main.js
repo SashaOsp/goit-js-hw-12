@@ -44,7 +44,6 @@ async function handleSubmit(evt) {
 
   try {
     const data = await getImagesByQuery(currentQuery, currentPage);
-
     totalHits = data.totalHits;
 
     if (data.hits.length === 0) {
@@ -58,7 +57,13 @@ async function handleSubmit(evt) {
 
     createGallery(data.hits);
 
-    if (totalHits > 15) {
+    if (totalHits <= 15) {
+      hideLoadMoreButton();
+      iziToast.info({
+        message: "You're already viewing all available results.",
+        position: 'topRight',
+      });
+    } else {
       showLoadMoreButton();
     }
   } catch (error) {
@@ -72,10 +77,11 @@ async function handleSubmit(evt) {
 }
 
 async function handleLoadMore() {
-  currentPage += 1;
+  hideLoadMoreButton();
   showLoader();
 
   try {
+    currentPage += 1;
     const data = await getImagesByQuery(currentQuery, currentPage);
 
     createGallery(data.hits);
@@ -88,6 +94,8 @@ async function handleLoadMore() {
         message: "We're sorry, but you've reached the end of search results.",
         position: 'topRight',
       });
+    } else {
+      showLoadMoreButton();
     }
 
     smoothScroll();
